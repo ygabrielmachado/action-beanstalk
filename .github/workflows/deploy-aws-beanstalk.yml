@@ -55,17 +55,17 @@ jobs:
         echo "::set-output name=usedEnv::${{ github.event.inputs.setEnvironment }}"    
 
     - name: Used env master
-      if: "${{ BRANCH_NAME == 'master' }}"
+      if: "${{ env.BRANCH_NAME == 'master' }}"
       run: |
         echo "::set-output name=usedBranch::prd"
     
     - name: Used env staging
-      if: "${{ BRANCH_NAME == 'staging' }}"
+      if: "${{ env.BRANCH_NAME == 'staging' }}"
       run: |
         echo "::set-output name=usedBranch::stg"
     
     - name: Used env dev
-      if: "${{ BRANCH_NAME != 'master' }}"
+      if: "${{ env.BRANCH_NAME != 'master' }}"
       run: |
         echo "::set-output name=usedBranch::dev"
        
