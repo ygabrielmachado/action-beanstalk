@@ -42,9 +42,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Used vars
       if: github.event.inputs.appName == ''
-      id: ref
+    - id: ref
       run: |
         echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF})" >> $GITHUB_ENV
     
@@ -67,7 +66,7 @@ jobs:
     - name: Used env dev
       if: "${{ env.BRANCH_NAME != 'master' }}"
       run: |
-        echo '::set-output name=usedBranch::dev'
+        echo "::set-output name=usedBranch::dev"
 
     - name: Echo branchOutput
       run: |
