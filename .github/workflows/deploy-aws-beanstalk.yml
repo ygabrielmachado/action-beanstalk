@@ -50,29 +50,19 @@ jobs:
     - name: Used vars for dispatch
       if: github.event.inputs.appName != ''
       run: |
-        echo "::set-output name=usedEnv::${{ github.event.inputs.setEnvironment }}"    
+        echo "::set-output name=usedEnv::${{ github.event.inputs.setEnvironment }}"
 
-    - id: ref
-      if: "${{ env.BRANCH_NAME == 'master' }}"
+    - name: Env to deploy
+      id: ref
       run: |
+      if [[ ${{ env.BRANCH_NAME }} == 'master' ]]; then
         echo "::set-output name=usedBranch::prd"
-    
-    - id: ref
-      if: "${{ env.BRANCH_NAME == 'staging' }}"
-      run: |
+      if [[ ${{ env.BRANCH_NAME }} == 'staging' ]]; then
         echo "::set-output name=usedBranch::stg"
-    
-    - id: ref
-      if: "${{ env.BRANCH_NAME != 'master' }}"
-      run: |
+      else
         echo "::set-output name=usedBranch::dev"
-        echo "::set-output name=version::$tagversion"
-
-    - id: ref
-      run: |
-        echo "${{ steps.ref.outputs.usedBranch }}"
+      fi    
         
-       
   deploy:
     needs: build
     runs-on: ubuntu-latest
