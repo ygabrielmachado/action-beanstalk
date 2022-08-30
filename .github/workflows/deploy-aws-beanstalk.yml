@@ -90,6 +90,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     
+    - name: Echo region
+      run: |
+        echo "${{ needs.build.outputs.regionOutput }}"
+    
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
