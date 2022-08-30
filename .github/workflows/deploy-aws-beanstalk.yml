@@ -37,8 +37,6 @@ jobs:
     runs-on: ubuntu-latest
     name:  Build
     outputs:
-      appNameOutput: ${{ steps.ref.outputs.usedAppName }}
-      regionOutput: ${{ steps.ref.outputs.usedRegion }}
       branchOutput: ${{ steps.ref.outputs.usedBranch }}
     steps:
     - name: Checkout
@@ -48,26 +46,14 @@ jobs:
       if: github.event.inputs.appName == ''
       id: ref
       run: |
-
-        $region_encrypted=${{ secrets.SET_REGION }}
-        echo "::add-mask::$region_encrypted"
-        region_encrypted=$(gpg --symmetric --batch --passphrase "$SECRET" --output - <(echo "$region_encrypted") | base64 -w0)
-        echo "::set-output name=usedAppName::${{ secrets.APP_NAME }}"
-        echo "::set-output name=usedRegion::$region_encrypted"
         echo "::set-output name=usedBranch::${GITHUB_REF#refs/heads/}"
     
       
     - name: Used vars for dispatch
       if: github.event.inputs.appName != ''
       run: |
-        echo "::set-output name=usedAppName::${{ github.event.inputs.appName }}"
-        echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
-        echo "::set-output name=usedEnv::${{ github.event.inputs.setEnvironment }}"
+        echo "::set-output name=usedEnv::${{ github.event.inputs.setEnvironment }}"    
 
-    - name: Echo region
-      run: |
-        echo "${{ steps.ref.outputs.usedRegion }}"
-    
     - name: Used env master
       if: "${{ steps.ref.outputs.usedBranch == 'master' }}"
       run: |
@@ -92,24 +78,38 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     name: Deploy
+    outputs:
+      appNameOutput: ${{ steps.ref.outputs.usedAppName }}
+      regionOutput: ${{ steps.ref.outputs.usedRegion }}
 
     environment: ${{needs.build.outputs.branchOutput}}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-    
-    - name: Echo region and decrypt
+
+    - name: Echo branchOutput
       run: |
-        region_encrypted=$(gpg --decrypt --quiet --batch --passphrase "$SECRET" --output - <(echo "${{ needs.build.outputs.region_encrypted }}" | base64 --decode))
-        echo "${{ needs.build.outputs.region_encrypted }}"
-    
+        echo "${{ needs.build.outputs.branchOutput }}"
+
+    - name: Used vars by push
+      if: github.event.inputs.appName == ''
+      id: ref2
+      run: |
+        echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
+        echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
+
+    - name: Used vars by workflow dispatch
+      if: github.event.inputs.appName != ''
+      run: |
+        echo "::set-output name=usedAppName::${{ github.event.inputs.appName }}"
+        echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{needs.build.outputs.regionOutput}}
+        aws-region: ${{ steps.ref2.outputs.usedRegion }}
 
     - name: Build
       run: |
