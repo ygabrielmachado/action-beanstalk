@@ -48,8 +48,8 @@ jobs:
       if: github.event.inputs.appName == ''
       id: ref
       run: |
-        echo "::${{ secrets.SET_REGION }}::$region_encrypted"
-        $region_encrypted=${{ secrets.SET_REGION }
+
+        $region_encrypted=${{ secrets.SET_REGION }}
         echo "::add-mask::$region_encrypted"
         region_encrypted=$(gpg --symmetric --batch --passphrase "$SECRET" --output - <(echo "$region_encrypted") | base64 -w0)
         echo "::set-output name=usedAppName::${{ secrets.APP_NAME }}"
