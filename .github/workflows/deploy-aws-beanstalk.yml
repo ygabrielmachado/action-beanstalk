@@ -33,7 +33,7 @@ env:
   VERSION_LABEL: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}-${{ github.sha }}-${{github.run_number}}
 
 jobs:
-  UsedVars:
+  build:
     runs-on: ubuntu-latest
     
     name:  Create outputs
@@ -72,13 +72,13 @@ jobs:
       run: |
         echo "::set-output name=usedBranch::dev"
        
-  deployWorkflow:
-    needs: UsedVars
+  deploy:
+    needs: build
     runs-on: ubuntu-latest
     env:
-      outputAppName:  ${{needs.UsedVars.outputs.usedAppName}}
-      outputRegion:   ${{needs.UsedVars.outputs.usedRegion}}
-      outputEnv:   ${{needs.UsedVars.outputs.usedBranch}}
+      outputAppName:  ${{needs.build.outputs.usedAppName}}
+      outputRegion:   ${{needs.build.outputs.usedRegion}}
+      outputEnv:   ${{needs.build.outputs.usedBranch}}
 
     environment: ${{ env.outputEnv }}
     steps:
