@@ -6,72 +6,73 @@ on:
   pull_request:
     branches: "main"
 
-  # workflow_dispatch:
-  #   inputs:
-  #     setRegion:
-  #       description: 'Set region to deploy:'     
-  #       required: true
-  #       default: 'us-east-1' 
-  #       type: choice
-  #       options:
-  #       - us-east-1
-  #       - us-east-2
-  #     setEnvironment:
-  #       description: 'Set environment to deploy:'     
-  #       required: true
-  #       default: 'dev' 
-  #       type: choice
-  #       options:
-  #       - prd
-  #       - dev
-  #       - stg  
-  #     appName:
-  #       description: 'Application name:'
-  #       required: true
+  workflow_dispatch:
+    inputs:
+      setRegion:
+        description: 'Set region to deploy:'     
+        required: true
+        default: 'us-east-1' 
+        type: choice
+        options:
+        - us-east-1
+        - us-east-2
+      setEnvironment:
+        description: 'Set environment to deploy:'     
+        required: true
+        default: 'dev' 
+        type: choice
+        options:
+        - prd
+        - dev
+        - stg  
+      appName:
+        description: 'Application name:'
+        required: true
 env:
   ENVIRONMENT_NAME: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}
   VERSION_LABEL: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}-${{ github.sha }}-${{github.run_number}}
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    name:  Build
-    
-    name:  Create outputs
-    outputs:
-      appNameOutput: ${{ steps.createVersion.outputs.usedAppName }}
-      regionOutput: ${{ steps.createVersion.outputs.usedRegion }}
-      branchOutput: ${{ steps.createVersion.outputs.usedBranch }}
-    steps:
-      if: github.event_name == 'workflow_dispatch' && github.event.inputs.appName == ''
-    - name: Used vars
-      id: ref
-      run: |
-        echo "::set-output name=usedAppName::$secrets.SET_NAME"
-        echo "::set-output name=usedRegion::$secrets.SET_REGION"
-        echo "::set-output name=usedBranch::${GITHUB_REF#refs/heads/}"
-    
-      if: github.event_name == 'workflow_dispatch' && github.event.inputs.appName != ''
-    - name: Used vars
-      run: |
-        echo "::set-output name=usedAppName::$ ${{ github.event.inputs.appName }}"
-        echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
-        echo "::set-output name=usedEnv::${{ github.event.inputs.setEnvironment }}"
 
-    - name: Used env master
-      if: "${{ steps.ref.outputs.usedBranch == 'master' }}"
-      run: |
-        echo "::set-output name=usedBranch::prd"
+  # build:
+  #   runs-on: ubuntu-latest
+  #   name:  Build
     
-    - name: Used env staging
-      if: "${{ steps.ref.outputs.usedBranch == 'staging' }}"
-      run: |
-        echo "::set-output name=usedBranch::stg"
+  #   name:  Create outputs
+  #   outputs:
+  #     appNameOutput: ${{ steps.createVersion.outputs.usedAppName }}
+  #     regionOutput: ${{ steps.createVersion.outputs.usedRegion }}
+  #     branchOutput: ${{ steps.createVersion.outputs.usedBranch }}
+  #   steps:
+  #     if: github.event_name == 'workflow_dispatch' && github.event.inputs.appName == ''
+  #   - name: Used vars
+  #     id: ref
+  #     run: |
+  #       echo "::set-output name=usedAppName::$secrets.SET_NAME"
+  #       echo "::set-output name=usedRegion::$secrets.SET_REGION"
+  #       echo "::set-output name=usedBranch::${GITHUB_REF#refs/heads/}"
     
-    - name: Used env dev
-      if: "${{ steps.ref.outputs.usedBranch != 'master' }}"
-      run: |
-        echo "::set-output name=usedBranch::dev"
+  #     if: github.event_name == 'workflow_dispatch' && github.event.inputs.appName != ''
+  #   - name: Used vars
+  #     run: |
+  #       echo "::set-output name=usedAppName::$ ${{ github.event.inputs.appName }}"
+  #       echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
+  #       echo "::set-output name=usedEnv::${{ github.event.inputs.setEnvironment }}"
+
+  #   - name: Used env master
+  #     if: "${{ steps.ref.outputs.usedBranch == 'master' }}"
+  #     run: |
+  #       echo "::set-output name=usedBranch::prd"
+    
+  #   - name: Used env staging
+  #     if: "${{ steps.ref.outputs.usedBranch == 'staging' }}"
+  #     run: |
+  #       echo "::set-output name=usedBranch::stg"
+    
+  #   - name: Used env dev
+  #     if: "${{ steps.ref.outputs.usedBranch != 'master' }}"
+  #     run: |
+  #       echo "::set-output name=usedBranch::dev"
        
   deploy:
     needs: build
