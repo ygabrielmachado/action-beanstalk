@@ -46,12 +46,7 @@ jobs:
     - name: Get branch name (merge)
       if: github.event_name != 'pull_request'
       shell: bash
-      run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
-
-
-    - name: Debug
-      run: echo ${{ env.BRANCH_NAME }}
-  
+      run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV  
       
     - name: Used vars for dispatch
       if: github.event.inputs.appName != ''
@@ -59,17 +54,17 @@ jobs:
         echo "::set-output name=usedEnv::${{ github.event.inputs.setEnvironment }}"    
 
     - name: Used env master
-      if: "${{ env.GIT_BRANCH == 'master' }}"
+      if: "${{ env.BRANCH_NAME == 'master' }}"
       run: |
         echo "::set-output name=usedBranch::prd"
     
     - name: Used env staging
-      if: "${{ env.GIT_BRANCH == 'staging' }}"
+      if: "${{ env.BRANCH_NAME == 'staging' }}"
       run: |
         echo "::set-output name=usedBranch::stg"
     
     - name: Used env dev
-      if: "${{ env.GIT_BRANCH != 'master' }}"
+      if: "${{ env.BRANCH_NAME != 'master' }}"
       run: |
         echo "::set-output name=usedBranch::dev"
 
