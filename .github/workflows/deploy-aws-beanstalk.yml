@@ -42,7 +42,7 @@ jobs:
       branchOutput: ${{ steps.createVersion.outputs.usedBranch }}
     steps:
     - name: Checkout
-        uses: actions/checkout@v3
+      uses: actions/checkout@v3
 
       if: github.event_name == 'workflow_dispatch' && github.event.inputs.appName == ''
     - name: Used vars
