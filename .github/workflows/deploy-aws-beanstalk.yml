@@ -10,7 +10,7 @@ on:
     inputs:
       setRegion:
         description: 'Set region to deploy:'     
-        required: true
+        required: false
         default: 'us-east-1' 
         type: choice
         options:
@@ -27,7 +27,7 @@ on:
         - stg  
       appName:
         description: 'Application name:'
-        required: true
+        required: false
 env:
   ENVIRONMENT_NAME: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}
   VERSION_LABEL: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}-${{ github.sha }}-${{github.run_number}}
