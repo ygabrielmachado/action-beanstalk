@@ -1,10 +1,10 @@
 name: Deploy to Amazon Beanstalk
 
 on:
-  # push:
-  #   branches: [ "main" ]
-  # pull_request:
-  #   branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
   workflow_dispatch:
     inputs:
@@ -29,18 +29,58 @@ on:
         description: 'Application name:'
         required: true
 env:
-  AWS_REGION: ${{ github.event.inputs.setRegion }}                                                      # set this to your preferred AWS region, e.g. us-west-1
-  ENV: ${{ github.event.inputs.setEnvironment }} 
-  APP_NAME: ${{ github.event.inputs.appName }}
   ENVIRONMENT_NAME: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}
   VERSION_LABEL: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}-${{ github.sha }}-${{github.run_number}}
 
 jobs:
-  deploy:
-    name: Deploy
+  UsedVars:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.setEnvironment }}
     
+    name:  Create outputs
+    outputs:
+      appNameOutput: ${{ steps.createVersion.outputs.usedAppName }}
+      regionOutput: ${{ steps.createVersion.outputs.usedRegion }}
+      branchOutput: ${{ steps.createVersion.outputs.usedBranch }}
+    steps:
+      if: github.event_name == 'workflow_dispatch' && github.event.inputs.appName == ''
+    - name: Used vars
+      id: ref
+      run: |
+        echo "::set-output name=usedAppName::$secrets.SET_NAME"
+        echo "::set-output name=usedRegion::$secrets.SET_REGION"
+        echo "::set-output name=usedBranch::${GITHUB_REF#refs/heads/}"
+    
+      if: github.event_name == 'workflow_dispatch' && github.event.inputs.appName != ''
+    - name: Used vars
+      run: |
+        echo "::set-output name=usedAppName::$ ${{ github.event.inputs.appName }}"
+        echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
+        echo "::set-output name=usedEnv::${{ github.event.inputs.setEnvironment }}"
+
+    - name: Used env master
+      if: "${{ steps.ref.outputs.usedBranch == 'master' }}"
+      run: |
+        echo "::set-output name=usedBranch::prd"
+    
+    - name: Used env staging
+      if: "${{ steps.ref.outputs.usedBranch == 'staging' }}"
+      run: |
+        echo "::set-output name=usedBranch::stg"
+    
+    - name: Used env dev
+      if: "${{ steps.ref.outputs.usedBranch != 'master' }}"
+      run: |
+        echo "::set-output name=usedBranch::dev"
+       
+  deployWorkflow:
+    needs: UsedVars
+    runs-on: ubuntu-latest
+    env:
+      outputAppName:  ${{needs.UsedVars.outputs.usedAppName}}
+      outputRegion:   ${{needs.UsedVars.outputs.usedRegion}}
+      outputEnv:   ${{needs.UsedVars.outputs.usedBranch}}
+
+    environment: ${{ env.outputEnv }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -50,7 +90,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+        aws-region: ${{ env.outputRegion }}
 
     - name: Build
       run: |
@@ -59,10 +99,10 @@ jobs:
 
     - name: Deploy Amazon Beanstalk
       run: |
-        aws s3 cp ./app/app.zip s3://$ENVIRONMENT_NAME-bucket/$ENV/$VERSION_LABEL
-        aws --region $AWS_REGION elasticbeanstalk create-application-version --application-name $APP_NAME --version-label $VERSION_LABEL --source-bundle S3Bucket=$ENVIRONMENT_NAME-bucket,S3Key=$ENV/$VERSION_LABEL
-        aws --region $AWS_REGION elasticbeanstalk update-environment --environment-name $ENVIRONMENT_NAME --version-label $VERSION_LABEL
+        aws s3 cp ./app/app.zip s3://$ENVIRONMENT_NAME-bucket/${{ env.outputEnv }}/$VERSION_LABEL
+        aws --region ${{ env.outputRegion }} elasticbeanstalk create-application-version --application-name ${{ env.outputAppName }} --version-label $VERSION_LABEL --source-bundle S3Bucket=$ENVIRONMENT_NAME-bucket,S3Key=${{ env.outputEnv }}/$VERSION_LABEL
+        aws --region ${{ env.outputRegion }} elasticbeanstalk update-environment --environment-name $ENVIRONMENT_NAME --version-label $VERSION_LABEL
 
     - name: Check Environment
       run: |
-        aws elasticbeanstalk describe-environments --region $AWS_REGION --application-name $APP_NAME --environment-names $ENVIRONMENT_NAME
+        aws elasticbeanstalk describe-environments --region ${{ env.outputRegion }} --application-name ${{ env.outputAppName }} --environment-names $ENVIRONMENT_NAME
