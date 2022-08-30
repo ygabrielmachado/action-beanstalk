@@ -2,9 +2,9 @@ name: Deploy to Amazon Beanstalk
 
 on:
   push:
-    branches: [ "main" ]
+    branches: "main"
   pull_request:
-    branches: [ "main" ]
+    branches: "main"
 
   workflow_dispatch:
     inputs:
@@ -35,6 +35,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    name:  Build
+    name:  Deploy
     
     name:  Create outputs
     outputs:
