@@ -37,9 +37,9 @@ jobs:
     runs-on: ubuntu-latest
     name:  Build
     outputs:
-
+      appNameOutput: ${{ steps.ref.outputs.usedAppName }}
       regionOutput: ${{ steps.ref.outputs.usedRegion }}
-
+      branchOutput: ${{ steps.ref.outputs.usedBranch }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -48,9 +48,9 @@ jobs:
       if: github.event.inputs.appName == ''
       id: ref
       run: |
-
+        echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
         echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
-
+        echo "::set-output name=usedBranch::${GITHUB_REF#refs/heads/}"
     
       
     - name: Used vars for dispatch
@@ -60,6 +60,10 @@ jobs:
         echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
         echo "::set-output name=usedEnv::${{ github.event.inputs.setEnvironment }}"
 
+    - name: Echo region
+      run: |
+        echo "${{ steps.ref.outputs.usedRegion }}"
+    
     - name: Used env master
       if: "${{ steps.ref.outputs.usedBranch == 'master' }}"
       run: |
