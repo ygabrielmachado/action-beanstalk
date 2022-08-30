@@ -73,6 +73,11 @@ jobs:
       if: "${{ steps.ref.outputs.usedBranch != 'master' }}"
       run: |
         echo "::set-output name=usedBranch::dev"
+  #Para teste
+    - name: Used env dev
+      if: "${{ steps.ref.outputs.usedBranch == 'main' }}"
+      run: |
+        echo "::set-output name=usedBranch::dev"
        
   deploy:
     needs: build
