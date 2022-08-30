@@ -31,7 +31,7 @@ on:
 env:
   ENVIRONMENT_NAME: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}
   VERSION_LABEL: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}-${{ github.sha }}-${{github.run_number}}
-  DEV: dev
+  
 
 jobs:
   build:
@@ -43,11 +43,18 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-      if: github.event.inputs.appName == ''
-    - id: ref
-      run: |
-         GIT_BRANCH=${GITHUB_BASE_REF:-${GITHUB_REF#refs/heads/}}
-         echo "GIT_BRANCH=$GIT_BRANCH" >> $GITHUB_ENV
+      - name: Get branch name (merge)
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+
+      - name: Get branch name (pull request)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+
+      - name: Debug
+        run: echo ${{ env.BRANCH_NAME }}
     
       
     - name: Used vars for dispatch
@@ -68,7 +75,7 @@ jobs:
     - name: Used env dev
       if: "${{ env.GIT_BRANCH != 'master' }}"
       run: |
-        echo "::set-output name=usedBranch::$DEV"
+        echo "::set-output name=usedBranch::dev"
 
     - name: Echo branchOutput
       run: |
