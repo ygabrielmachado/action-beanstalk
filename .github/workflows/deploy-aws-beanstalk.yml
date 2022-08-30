@@ -6,28 +6,28 @@ on:
   pull_request:
     branches: "main"
 
-  workflow_dispatch:
-    inputs:
-      setRegion:
-        description: 'Set region to deploy:'     
-        required: true
-        default: 'us-east-1' 
-        type: choice
-        options:
-        - us-east-1
-        - us-east-2
-      setEnvironment:
-        description: 'Set environment to deploy:'     
-        required: true
-        default: 'dev' 
-        type: choice
-        options:
-        - prd
-        - dev
-        - stg  
-      appName:
-        description: 'Application name:'
-        required: true
+  # workflow_dispatch:
+  #   inputs:
+  #     setRegion:
+  #       description: 'Set region to deploy:'     
+  #       required: true
+  #       default: 'us-east-1' 
+  #       type: choice
+  #       options:
+  #       - us-east-1
+  #       - us-east-2
+  #     setEnvironment:
+  #       description: 'Set environment to deploy:'     
+  #       required: true
+  #       default: 'dev' 
+  #       type: choice
+  #       options:
+  #       - prd
+  #       - dev
+  #       - stg  
+  #     appName:
+  #       description: 'Application name:'
+  #       required: true
 env:
   ENVIRONMENT_NAME: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}
   VERSION_LABEL: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}-${{ github.sha }}-${{github.run_number}}
@@ -36,7 +36,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name:  Build
-    name:  Deploy
     
     name:  Create outputs
     outputs:
@@ -77,6 +76,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    name: Deploy
     env:
       outputAppName:  ${{needs.build.outputs.usedAppName}}
       outputRegion:   ${{needs.build.outputs.usedRegion}}
