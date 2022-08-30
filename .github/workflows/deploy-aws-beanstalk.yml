@@ -38,7 +38,7 @@ jobs:
     name:  Build
     outputs:
       appNameOutput: ${{ steps.ref.outputs.usedAppName }}
-      output1: ${{ steps.ref.outputs.usedRegion }}
+      regionOutput: ${{ steps.ref.outputs.usedRegion }}
       branchOutput: ${{ steps.ref.outputs.usedBranch }}
     steps:
     - name: Checkout
@@ -48,8 +48,8 @@ jobs:
       if: github.event.inputs.appName == ''
       id: ref
       run: |
-        echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
-        echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
+        echo "::set-output name=usedAppName::template-beanstalk"
+        echo "::set-output name=usedRegion::us-east-1"
         echo "::set-output name=usedBranch::${GITHUB_REF#refs/heads/}"
     
       
@@ -96,7 +96,7 @@ jobs:
     
     - name: Echo region
       run: |
-        echo "${{ needs.build.outputs.output1 }}"
+        echo "${{ needs.build.outputs.regionOutput }}"
     
 
     - name: Configure AWS credentials
