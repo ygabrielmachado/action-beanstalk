@@ -44,7 +44,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-      if: github.event.inputs.appName == ''
+      if: github.event.inputs.appName != ''
     - name: Used vars
       id: ref
       run: |
@@ -52,7 +52,7 @@ jobs:
         echo "::set-output name=usedRegion::$secrets.${{ secrets.SET_REGION }}"
         echo "::set-output name=usedBranch::${GITHUB_REF#refs/heads/}"
     
-      if: github.event.inputs.appName != ''
+      if: github.event.inputs.appName == ''
     - name: Used vars for dispatch
       run: |
         echo "::set-output name=usedAppName::${{ github.event.inputs.appName }}"
