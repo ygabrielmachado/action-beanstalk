@@ -83,7 +83,7 @@ jobs:
       outputRegion:   ${{needs.build.outputs.usedRegion}}
       outputEnv:   ${{needs.build.outputs.usedBranch}}
 
-    environment: ${{ env.outputEnv }}
+    environment: ${{needs.build.outputs.usedBranch}}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -93,7 +93,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.outputRegion }}
+        aws-region: ${{needs.build.outputs.usedRegion}}
 
     - name: Build
       run: |
@@ -102,10 +102,10 @@ jobs:
 
     - name: Deploy Amazon Beanstalk
       run: |
-        aws s3 cp ./app/app.zip s3://$ENVIRONMENT_NAME-bucket/${{ env.outputEnv }}/$VERSION_LABEL
-        aws --region ${{ env.outputRegion }} elasticbeanstalk create-application-version --application-name ${{ env.outputAppName }} --version-label $VERSION_LABEL --source-bundle S3Bucket=$ENVIRONMENT_NAME-bucket,S3Key=${{ env.outputEnv }}/$VERSION_LABEL
-        aws --region ${{ env.outputRegion }} elasticbeanstalk update-environment --environment-name $ENVIRONMENT_NAME --version-label $VERSION_LABEL
+        aws s3 cp ./app/app.zip s3://$ENVIRONMENT_NAME-bucket/${{needs.build.outputs.usedBranch}}/$VERSION_LABEL
+        aws --region ${{needs.build.outputs.usedRegion}} elasticbeanstalk create-application-version --application-name ${{needs.build.outputs.usedAppName}} --version-label $VERSION_LABEL --source-bundle S3Bucket=$ENVIRONMENT_NAME-bucket,S3Key=${{needs.build.outputs.usedBranch}}/$VERSION_LABEL
+        aws --region ${{needs.build.outputs.usedRegion}} elasticbeanstalk update-environment --environment-name $ENVIRONMENT_NAME --version-label $VERSION_LABEL
 
     - name: Check Environment
       run: |
-        aws elasticbeanstalk describe-environments --region ${{ env.outputRegion }} --application-name ${{ env.outputAppName }} --environment-names $ENVIRONMENT_NAME
+        aws elasticbeanstalk describe-environments --region ${{ env.outputRegion }} --application-name ${{needs.build.outputs.usedAppName}} --environment-names $ENVIRONMENT_NAME
