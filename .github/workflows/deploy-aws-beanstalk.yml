@@ -38,7 +38,7 @@ jobs:
     name:  Build
     outputs:
       appNameOutput: ${{ steps.ref.outputs.usedAppName }}
-      regionOutput: ${{ steps.ref.outputs.usedRegion }}
+      output1: ${{ steps.ref.outputs.usedRegion }}
       branchOutput: ${{ steps.ref.outputs.usedBranch }}
     steps:
     - name: Checkout
@@ -96,7 +96,7 @@ jobs:
     
     - name: Echo region
       run: |
-        echo "${{ needs.build.outputs.regionOutput }}"
+        echo "${{ needs.build.outputs.output1 }}"
     
 
     - name: Configure AWS credentials
