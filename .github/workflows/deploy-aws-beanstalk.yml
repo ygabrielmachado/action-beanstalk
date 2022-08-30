@@ -58,11 +58,11 @@ jobs:
       
         if [[ ${{ env.BRANCH_NAME }} == 'master' ]]; then
           echo "::set-output name=usedBranch::prd"
-        if [[ ${{ env.BRANCH_NAME }} == 'staging' ]]; then
+        elif [[ ${{ env.BRANCH_NAME }} == 'staging' ]]; then
           echo "::set-output name=usedBranch::stg"
         else
           echo "::set-output name=usedBranch::dev"
-            
+        fi
         
   deploy:
     needs: build
