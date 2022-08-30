@@ -46,7 +46,7 @@ jobs:
       if: github.event.inputs.appName == ''
       id: ref
       run: |
-        echo "::set-output name=usedBranch::${GITHUB_REF#refs/heads/}"
+        echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF})" >> $GITHUB_ENV
     
       
     - name: Used vars for dispatch
@@ -55,22 +55,17 @@ jobs:
         echo "::set-output name=usedEnv::${{ github.event.inputs.setEnvironment }}"    
 
     - name: Used env master
-      if: "${{ steps.ref.outputs.usedBranch == 'master' }}"
+      if: "${{ BRANCH_NAME == 'master' }}"
       run: |
         echo "::set-output name=usedBranch::prd"
     
     - name: Used env staging
-      if: "${{ steps.ref.outputs.usedBranch == 'staging' }}"
+      if: "${{ BRANCH_NAME == 'staging' }}"
       run: |
         echo "::set-output name=usedBranch::stg"
     
     - name: Used env dev
-      if: "${{ steps.ref.outputs.usedBranch != 'master' }}"
-      run: |
-        echo "::set-output name=usedBranch::dev"
-  #Para teste
-    - name: Used env dev
-      if: "${{ steps.ref.outputs.usedBranch == 'main' }}"
+      if: "${{ BRANCH_NAME != 'master' }}"
       run: |
         echo "::set-output name=usedBranch::dev"
        
