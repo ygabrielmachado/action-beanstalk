@@ -55,7 +55,6 @@ jobs:
     - name: Env to deploy
       id: ref
       run: |
-      
         if [[ ${{ env.BRANCH_NAME }} == 'master' ]]; then
           echo "::set-output name=usedBranch::prd"
         elif [[ ${{ env.BRANCH_NAME }} == 'staging' ]]; then
@@ -77,22 +76,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Echo branchOutput
-      run: |
-        echo "${{ needs.build.outputs.branchOutput }}"
-
     - name: Used vars by push
       if: github.event.inputs.appName == ''
       id: ref2
       run: |
-        echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
-        echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
-
-    - name: Used vars by workflow dispatch
-      if: github.event.inputs.appName != ''
-      run: |
-        echo "::set-output name=usedAppName::${{ github.event.inputs.appName }}"
-        echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
+        if [[ ${{ github.event.inputs.appName }} == '' ]]; then
+          echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
+          echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
+        else
+          echo "::set-output name=usedAppName::${{ github.event.inputs.appName }}"
+          echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
+        fi
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
