@@ -49,7 +49,7 @@ jobs:
       id: ref
       run: |
         echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
-        echo "::set-output name=usedRegion::$secrets.${{ secrets.SET_REGION }}"
+        echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
         echo "::set-output name=usedBranch::${GITHUB_REF#refs/heads/}"
     
       
