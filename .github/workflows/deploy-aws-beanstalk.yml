@@ -48,12 +48,12 @@ jobs:
     - name: Used vars
       id: ref
       run: |
-        echo "::set-output name=usedAppName::$secrets.SET_NAME"
-        echo "::set-output name=usedRegion::$secrets.SET_REGION"
+        echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
+        echo "::set-output name=usedRegion::$secrets.${{ secrets.SET_REGION }}"
         echo "::set-output name=usedBranch::${GITHUB_REF#refs/heads/}"
     
       if: github.event_name == 'workflow_dispatch' && github.event.inputs.appName != ''
-    - name: Used vars
+    - name: Used vars for dispatch
       run: |
         echo "::set-output name=usedAppName::$ ${{ github.event.inputs.appName }}"
         echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
