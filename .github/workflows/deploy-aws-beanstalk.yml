@@ -83,10 +83,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     name: Deploy
-    env:
-      outputAppName:  ${{needs.build.outputs.usedAppName}}
-      outputRegion:   ${{needs.build.outputs.usedRegion}}
-      outputEnv:   ${{needs.build.outputs.usedBranch}}
 
     environment: ${{needs.build.outputs.usedBranch}}
     steps:
