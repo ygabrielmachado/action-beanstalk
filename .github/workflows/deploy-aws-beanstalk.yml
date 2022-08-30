@@ -37,9 +37,9 @@ jobs:
     runs-on: ubuntu-latest
     name:  Build
     outputs:
-      appNameOutput: ${{ steps.createVersion.outputs.usedAppName }}
-      regionOutput: ${{ steps.createVersion.outputs.usedRegion }}
-      branchOutput: ${{ steps.createVersion.outputs.usedBranch }}
+      appNameOutput: ${{ steps.ref.outputs.usedAppName }}
+      regionOutput: ${{ steps.ref.outputs.usedRegion }}
+      branchOutput: ${{ steps.ref.outputs.usedBranch }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
