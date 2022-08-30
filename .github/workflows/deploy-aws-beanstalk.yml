@@ -31,9 +31,7 @@ on:
 env:
   ENVIRONMENT_NAME: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}
   VERSION_LABEL: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}-${{ github.sha }}-${{github.run_number}}
-  DEV: dev
   
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -54,24 +52,26 @@ jobs:
       run: |
         echo "::set-output name=usedEnv::${{ github.event.inputs.setEnvironment }}"    
 
-    - name: Used env master
+    - id: ref
       if: "${{ env.BRANCH_NAME == 'master' }}"
       run: |
         echo "::set-output name=usedBranch::prd"
     
-    - name: Used env staging
+    - id: ref
       if: "${{ env.BRANCH_NAME == 'staging' }}"
       run: |
         echo "::set-output name=usedBranch::stg"
     
-    - name: Used env dev
+    - id: ref
       if: "${{ env.BRANCH_NAME != 'master' }}"
       run: |
-        echo "::set-output name=usedBranch::$DEV"
+        echo "::set-output name=usedBranch::dev"
+        echo "::set-output name=version::$tagversion"
 
-    - name: Echo branchOutput
+    - id: ref
       run: |
         echo "${{ steps.ref.outputs.usedBranch }}"
+        
        
   deploy:
     needs: build
