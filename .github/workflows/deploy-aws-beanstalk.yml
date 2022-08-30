@@ -85,21 +85,18 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy
 
-    environment: ${{needs.build.outputs.usedBranch}}
+    environment: ${{needs.build.outputs.branchOutput}}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     
-    - name: Echo vars
-      run: |
-        echo "${{needs.build.outputs.usedRegion}}"
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{needs.build.outputs.usedRegion}}
+        aws-region: ${{needs.build.outputs.regionOutput}}
 
     - name: Build
       run: |
@@ -108,10 +105,10 @@ jobs:
 
     - name: Deploy Amazon Beanstalk
       run: |
-        aws s3 cp ./app/app.zip s3://$ENVIRONMENT_NAME-bucket/${{needs.build.outputs.usedBranch}}/$VERSION_LABEL
-        aws --region ${{needs.build.outputs.usedRegion}} elasticbeanstalk create-application-version --application-name ${{needs.build.outputs.usedAppName}} --version-label $VERSION_LABEL --source-bundle S3Bucket=$ENVIRONMENT_NAME-bucket,S3Key=${{needs.build.outputs.usedBranch}}/$VERSION_LABEL
-        aws --region ${{needs.build.outputs.usedRegion}} elasticbeanstalk update-environment --environment-name $ENVIRONMENT_NAME --version-label $VERSION_LABEL
+        aws s3 cp ./app/app.zip s3://$ENVIRONMENT_NAME-bucket/${{needs.build.outputs.branchOutput}}/$VERSION_LABEL
+        aws --region ${{needs.build.outputs.regionOutput}} elasticbeanstalk create-application-version --application-name ${{needs.build.outputs.appNameOutput}} --version-label $VERSION_LABEL --source-bundle S3Bucket=$ENVIRONMENT_NAME-bucket,S3Key=${{needs.build.outputs.branchOutput}}/$VERSION_LABEL
+        aws --region ${{needs.build.outputs.regionOutput}} elasticbeanstalk update-environment --environment-name $ENVIRONMENT_NAME --version-label $VERSION_LABEL
 
     - name: Check Environment
       run: |
-        aws elasticbeanstalk describe-environments --region ${{ env.outputRegion }} --application-name ${{needs.build.outputs.usedAppName}} --environment-names $ENVIRONMENT_NAME
+        aws elasticbeanstalk describe-environments --region ${{ env.outputRegion }} --application-name ${{needs.build.outputs.appNameOutput}} --environment-names $ENVIRONMENT_NAME
