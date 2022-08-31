@@ -71,8 +71,6 @@ jobs:
     name: Deploy
     env:
       environment: ${{ needs.build.outputs.branchOutput }}
-      app: ${{ steps.ref2.outputs.usedAppName }}
-      region: ${{ steps.ref2.outputs.usedRegion }}
 
     outputs:
       appNameOutput: ${{ steps.ref2.outputs.usedAppName }}
