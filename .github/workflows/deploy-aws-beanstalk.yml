@@ -80,7 +80,7 @@ jobs:
       if: github.event.inputs.appName == ''
       id: ref2
       run: |
-        data = ${{github.event.inputs.appName}}
+        data=${{github.event.inputs.appName}}
         if [[ ${{ data }} == '' ]]; then
           echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
           echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
