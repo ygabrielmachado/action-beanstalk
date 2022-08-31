@@ -78,15 +78,19 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     
-    - name: Used vars by push
+    - name: Workflow dispatch trigger
       if: github.event.inputs.appName == ''
       run: |
-       echo "data=true" >> $GITHUB_ENV   
+       echo "data=true" >> $GITHUB_ENV
+    - name: Push trigger
+      if: github.event.inputs.appName != ''
+      run: |
+       echo "data=false" >> $GITHUB_ENV      
 
     - name: Used vars by push
       id: ref2
       run: |
-        if [[ ${{ env.data }} == 'true' ||   -z "$env.data"  ]]; then
+        if [[ ${{ env.data }} == 'true' ]]; then
           echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
           echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
         else
