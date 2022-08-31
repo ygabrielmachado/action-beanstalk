@@ -103,7 +103,7 @@ jobs:
         fi
     - name: output
       run: |
-        echo "$usedRegion"
+        echo ${usedRegion}
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
