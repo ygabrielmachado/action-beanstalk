@@ -100,17 +100,14 @@ jobs:
         if [[ ${{ env.data }} == 'true' ]]; then
           echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
           echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
-          echo "::set-output name=usedEnvName::${{ steps.ref2.outputs.usedAppName }}-{{ env.environment }}"
-          echo "::set-output name=usedVersionLabel::${{ steps.ref2.outputs.usedAppName }}-{{ env.environment }}-{{ env.completeEnv }}"
+          echo "::set-output name=usedEnvName::${{ steps.ref2.outputs.usedAppName }}-${{ env.environment }}"
+          echo "::set-output name=usedVersionLabel::${{ steps.ref2.outputs.usedAppName }}-${{ env.environment }}-${{ env.completeEnv }}"
         else
           echo "::set-output name=usedAppName::${{ github.event.inputs.appName }}"
           echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
           echo "::set-output name=usedEnvName::${{ env.dispatchEnv }}"
           echo "::set-output name=usedVersionLabel::${{ env.dispatchLabel }}"
         fi
-    - name: output
-      run: |
-        echo ${usedRegion}
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
