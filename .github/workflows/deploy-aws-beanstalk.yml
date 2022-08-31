@@ -86,7 +86,7 @@ jobs:
     - name: Used vars by push
       id: ref2
       run: |
-        if [[ ${{ env.data }} == 'true' || [  -z "$env.data" ] ]]; then
+        if [[ ${{ env.data }} == 'true' ||   -z "$env.data"  ]]; then
           echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
           echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
         else
