@@ -123,10 +123,10 @@ jobs:
 
     - name: Deploy Amazon Beanstalk
       run: |
-        aws s3 cp ./app/app.zip s3://$ENVIRONMENT_NAME-bucket/${{ needs.build.outputs.branchOutput }}/$VERSION_LABEL
-        aws --region ${{ steps.ref2.outputs.usedRegion }} elasticbeanstalk create-application-version --application-name ${{ steps.ref2.outputs.usedAppName }} --version-label $VERSION_LABEL --source-bundle S3Bucket=$ENVIRONMENT_NAME-bucket,S3Key=${{needs.build.outputs.branchOutput}}/$VERSION_LABEL
-        aws --region ${{ steps.ref2.outputs.usedRegion }} elasticbeanstalk update-environment --environment-name $ENVIRONMENT_NAME --version-label $VERSION_LABEL
+        aws s3 cp ./app/app.zip s3://${{steps.ref2.outputs.usedEnvName}}-bucket/${{ needs.build.outputs.branchOutput }}/${{steps.ref2.outputs.usedEnvName}}
+        aws --region ${{ steps.ref2.outputs.usedRegion }} elasticbeanstalk create-application-version --application-name ${{ steps.ref2.outputs.usedAppName }} --version-label ${{steps.ref2.outputs.usedEnvName}} --source-bundle S3Bucket=${{steps.ref2.outputs.usedVersionLabel}}-bucket,S3Key=${{needs.build.outputs.branchOutput}}/${{steps.ref2.outputs.usedEnvName}}
+        aws --region ${{ steps.ref2.outputs.usedRegion }} elasticbeanstalk update-environment --environment-name ${{steps.ref2.outputs.usedVersionLabel}} --version-label ${{steps.ref2.outputs.usedEnvName}}
 
     - name: Check Environment
       run: |
-        aws elasticbeanstalk describe-environments --region ${{ steps.ref2.outputs.usedRegion }} --application-name ${{steps.ref2.outputs.usedAppName}} --environment-names $ENVIRONMENT_NAME
+        aws elasticbeanstalk describe-environments --region ${{ steps.ref2.outputs.usedRegion }} --application-name ${{steps.ref2.outputs.usedAppName}} --environment-names ${{steps.ref2.outputs.usedVersionLabel}}
