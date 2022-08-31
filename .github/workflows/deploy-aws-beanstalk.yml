@@ -100,7 +100,7 @@ jobs:
         if [[ ${{ env.data }} == 'true' ]]; then
           echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
           echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
-          echo "::set-output name=usedEnvName::${{ steps.ref2.outputs.usedAppName }-{{ env.environment }}"
+          echo "::set-output name=usedEnvName::${{ steps.ref2.outputs.usedAppName }}-{{ env.environment }}"
           echo "::set-output name=usedVersionLabel::${{ steps.ref2.outputs.usedAppName }-{{ env.environment }}-{{ env.completeEnv }}"
         else
           echo "::set-output name=usedAppName::${{ github.event.inputs.appName }}"
