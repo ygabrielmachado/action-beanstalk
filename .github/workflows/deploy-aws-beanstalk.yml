@@ -97,11 +97,13 @@ jobs:
         if [[ ${{ env.data }} == 'true' ]]; then
           echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
           echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
-          echo "$usedRegion"
         else
           echo "::set-output name=usedAppName::${{ github.event.inputs.appName }}"
           echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
         fi
+    - name: output
+      run: |
+        echo "$usedRegion"
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
