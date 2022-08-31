@@ -28,10 +28,10 @@ on:
       appName:
         description: 'Application name:'
         required: false
-env:
-  ENVIRONMENT_NAME: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}
-  VERSION_LABEL: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}-${{ github.sha }}-${{github.run_number}}
-  DATA: ${{github.event.inputs.appName}}
+# env:
+#   ENVIRONMENT_NAME: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}
+#   VERSION_LABEL: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}-${{ github.sha }}-${{github.run_number}}
+#   DATA: ${{github.event.inputs.appName}}
   
 jobs:
   build:
@@ -69,10 +69,16 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{needs.build.outputs.branchOutput}}
     name: Deploy
-    
+    env:
+      environment: ${{ needs.build.outputs.branchOutput }}
+      app: ${{ steps.ref2.outputs.usedAppName }}
+      region: ${{ steps.ref2.outputs.usedRegion }}
+
     outputs:
-      appNameOutput: ${{ steps.ref.outputs.usedAppName }}
-      regionOutput: ${{ steps.ref.outputs.usedRegion }}
+      appNameOutput: ${{ steps.ref2.outputs.usedAppName }}
+      regionOutput: ${{ steps.ref2.outputs.usedRegion }}
+      envNameOutput: ${{ steps.ref2.outputs.usedEnvName }}
+      versionLavelOutput: ${{ steps.ref2.outputs.usedVersionLabel }}
 
     steps:
     - name: Checkout
@@ -93,6 +99,7 @@ jobs:
         if [[ ${{ env.data }} == 'true' ]]; then
           echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
           echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
+          echo "::set-output name=usedEnvName::$"
         else
           echo "::set-output name=usedAppName::${{ github.event.inputs.appName }}"
           echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
@@ -103,7 +110,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ steps.ref2.outputs.usedRegion }}
+        aws-region: $region
 
     - name: Build
       run: |
