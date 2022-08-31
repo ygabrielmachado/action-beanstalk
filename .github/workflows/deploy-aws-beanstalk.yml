@@ -71,6 +71,9 @@ jobs:
     name: Deploy
     env:
       environment: ${{ needs.build.outputs.branchOutput }}
+      dispatchEnv: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}
+      dispatchLabel: ${{ github.event.inputs.appName }}-${{ github.event.inputs.setEnvironment }}-${{ github.sha }}-${{github.run_number}}
+      completeEnv: ${{ github.sha }}-${{github.run_number}}
     
     outputs:
       appNameOutput: ${{ steps.ref2.outputs.usedAppName }}
@@ -97,9 +100,13 @@ jobs:
         if [[ ${{ env.data }} == 'true' ]]; then
           echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
           echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
+          echo "::set-output name=usedEnvName::${{ steps.ref2.outputs.usedAppName }-{{ env.environment }}"
+          echo "::set-output name=usedVersionLabel::${{ steps.ref2.outputs.usedAppName }-{{ env.environment }}-{{ env.completeEnv }}"
         else
           echo "::set-output name=usedAppName::${{ github.event.inputs.appName }}"
           echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
+          echo "::set-output name=usedEnvName::${{ env.dispatchEnv }}"
+          echo "::set-output name=usedVersionLabel::${{ env.dispatchLabel }}"
         fi
     - name: output
       run: |
