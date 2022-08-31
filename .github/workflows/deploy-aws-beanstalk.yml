@@ -71,7 +71,7 @@ jobs:
     name: Deploy
     env:
       environment: ${{ needs.build.outputs.branchOutput }}
-
+    
     outputs:
       appNameOutput: ${{ steps.ref2.outputs.usedAppName }}
       regionOutput: ${{ steps.ref2.outputs.usedRegion }}
@@ -97,7 +97,7 @@ jobs:
         if [[ ${{ env.data }} == 'true' ]]; then
           echo "::set-output name=usedAppName::${{ secrets.SET_NAME }}"
           echo "::set-output name=usedRegion::${{ secrets.SET_REGION }}"
-          echo "::set-output name=usedEnvName::$"
+          echo "$usedRegion"
         else
           echo "::set-output name=usedAppName::${{ github.event.inputs.appName }}"
           echo "::set-output name=usedRegion::${{ github.event.inputs.setRegion }}"
@@ -108,7 +108,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: $region
+        aws-region: ${{ steps.ref2.outputs.usedRegion }}
 
     - name: Build
       run: |
